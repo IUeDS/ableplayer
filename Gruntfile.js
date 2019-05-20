@@ -8,7 +8,13 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-remove-logging");
     grunt.loadNpmTasks('grunt-contrib-jshint');
 
+    var config = {
+        src: 'src',
+        dist: 'dist'
+    };
+
     grunt.initConfig({
+        config: config,
         pkg: grunt.file.readJSON('package.json'),
         concat: {
             build: {
@@ -42,15 +48,22 @@ module.exports = function(grunt) {
                     'scripts/translation.js',
                     'scripts/JQuery.doWhen.js'
                 ],
-                dest: 'build/<%= pkg.name %>.js'
+                dest: 'build/js/<%= pkg.name %>.js'
             },
+            vendors: {
+                src: [
+                    'thirdparty/*.js',
+                ],
+                dest: 'build/js/vendors.js'
+            },
+
         },
         removelogging: {
             dist: {
                 src: [
-                    'build/<%= pkg.name %>.js'
+                    'build/js/<%= pkg.name %>.js'
                 ],
-                dest: 'build/<%= pkg.name %>.dist.js'
+                dest: 'build/js/<%= pkg.name %>.dist.js'
             },
             options: {
                 // Remove all console output (see https://www.npmjs.com/package/grunt-remove-logging)
@@ -58,8 +71,8 @@ module.exports = function(grunt) {
         },
         uglify: {
             min: {
-                src    : ['build/<%= pkg.name %>.dist.js'],
-                dest   : 'build/<%= pkg.name %>.min.js',
+                src    : ['build/js/<%= pkg.name %>.dist.js'],
+                dest   : 'build/js/<%= pkg.name %>.min.js',
             },
             options: {
                 // Add a banner with the package name and version
@@ -74,13 +87,39 @@ module.exports = function(grunt) {
                 src  : [
                     'styles/ableplayer.css',
                 ],
-                dest : 'build/<%= pkg.name %>.min.css',
+                dest : 'build/css/<%= pkg.name %>.min.css',
             },
             options: {
                 // Add a banner with the package name and version
                 //  (no date, otherwise a new build is different even if the code didn't change!)
                 //  (oddly, here we don't need a '\n' at the end!)
                 banner: '/*! <%= pkg.name %> V<%= pkg.version %> */',
+            }
+        },
+        copy: {
+            
+            assets: {
+                
+                files: [
+                    {
+                        //button icons
+                        src: ['button-icons/**'],  // copy files and folders
+                        dest: 'build/',    // destination folder
+                        expand: true           // required when using cwd
+                    },
+                    {
+                        //images
+                        src: ['images/**'],  // copy files and folders
+                        dest: 'build/',    // destination folder
+                        expand: true           // required when using cwd
+                    },
+                    {
+                        //translations
+                        src: ['translations/**'],  // copy files and folders
+                        dest: 'build/',    // destination folder
+                        expand: true           // required when using cwd
+                    },
+                ]
             }
         },
         jshint: {
@@ -100,6 +139,6 @@ module.exports = function(grunt) {
 
     });
 
-    grunt.registerTask('default', ['concat', 'removelogging', 'uglify', 'cssmin']);
+    grunt.registerTask('default', ['concat', 'removelogging', 'uglify', 'cssmin', 'copy']);
     grunt.registerTask('test', ['jshint']);
 };

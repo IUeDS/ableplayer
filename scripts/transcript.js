@@ -219,14 +219,21 @@
         spanStart += .01;
         // Each click within the transcript triggers two click events (not sure why)
         // this.seekingFromTranscript is a stopgab to prevent two calls to SeekTo()
-        if (!thisObj.seekingFromTranscript) {
-          thisObj.seekingFromTranscript = true;
-          thisObj.seekTo(spanStart);
-        }
-        else {
-          // don't seek a second time, but do reset var
-          thisObj.seekingFromTranscript = false;
-        }
+        // =========================================================================
+        // E. Scull: This double-click event problem doesn't seem to be happening.
+        // This stop-gap is now causing me to have to click twice to achieve the link.
+        // Let's remove it and call seekTo directly, as intended.
+
+        // if (!thisObj.seekingFromTranscript) {
+        //   thisObj.seekingFromTranscript = true;
+        //   thisObj.seekTo(spanStart);
+        // }
+        // else {
+        //   // don't seek a second time, but do reset var
+        //   thisObj.seekingFromTranscript = false;
+        // }
+        thisObj.seekTo(spanStart);
+        // =========================================================================
       });
     }
   };
@@ -245,17 +252,19 @@
     currentTime = parseFloat(currentTime);
 
     // Highlight the current transcript item.
+    // E. Scull: Modified to allow multiple highlights at once.
     this.$transcriptArea.find('span.able-transcript-caption').each(function() {
       start = parseFloat($(this).attr('data-start'));
       end = parseFloat($(this).attr('data-end'));
       if (currentTime >= start && currentTime <= end) {
-        // move all previous highlights before adding one to current span
-        thisObj.$transcriptArea.find('.able-highlight').removeClass('able-highlight');
+        //thisObj.$transcriptArea.find('.able-highlight').removeClass('able-highlight'); //E. Scull: Comment out
         $(this).addClass('able-highlight');
-        return false;
+        //return false; //E. Scull: Comment out
+      } else {
+        $(this).removeClass('able-highlight'); //E. Scull: Added this else block
       }
     });
-    thisObj.currentHighlight = $('.able-highlight');
+    thisObj.currentHighlight = $('.able-highlight:last'); //E. Scull: make the current highlight the last one in case of multiples. 
     if (thisObj.currentHighlight.length === 0) {
       // Nothing highlighted.
       thisObj.currentHighlight = null;
